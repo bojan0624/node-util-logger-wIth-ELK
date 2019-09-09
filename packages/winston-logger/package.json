@@ -1,5 +1,5 @@
 {
-  "name": "@blued-core/winston-logger",
+  "name": "@blued-core/winston-logger-with-elk",
   "version": "0.0.8",
   "description": "",
   "main": "dist/index.js",
@@ -16,12 +16,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@blued-core/cache-intl": "0.0.4",
+    "@blued-core/kafka-client": "^0.1.2",
     "@blued-core/logger-intl": "^0.0.12",
     "colors": "^1.3.3",
     "mkdirp": "^0.5.1",
     "typescript": "^3.4.3",
     "winston": "^3.2.1",
-    "winston-daily-rotate-file": "^3.8.0"
+    "winston-daily-rotate-file": "^3.8.0",
+    "winston-transport": "^4.3.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.5.2",
@@ -44,7 +47,7 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "npm run lint && npm run test"
+      "pre-commit": "npm run lint"
     }
   },
   "config": {
