@@ -40,16 +40,20 @@ export default abstract class Logger implements LoggerIntl {
         if (isLocal) {
           console.log(colors.green(data))
         }
-        logger.accessLog(data)
+        logger.accessLog({
+          ...data,
+          ms_timestamp: Date.now(),
+        })
       },
       error (error: Error, data?: Record<string, any>) {
         const err = {
           err_msg: error.message,
           err_name: error.name,
           err_stack: error.stack,
+          error,
         }
 
-        const results = { ...err, ...data }
+        const results = { ...err, ...data, ms_timestamp: Date.now() }
 
         // 添加本地环境的colors输出
         if (isLocal) {
