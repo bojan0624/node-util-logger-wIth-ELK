@@ -16,7 +16,9 @@ const winstonLogger = new Logger(
     logPath: `/data/logs/${name}/`,
     getKafkaClient: () => getKafkaClient(KAFKA_QCONF_CONFIG_PATH.ELKLOG),
     transformer,
-    isLocal: IS_LOCAL
+    isLocal: IS_LOCAL,
+    isWriteKafka: true,
+    isWriteFile: true
   },
   new Cache()
 )
@@ -35,6 +37,8 @@ Argument|Type|Required|Desc
 `logPath`|`string`|✅|日志输出的路径
 `logType`|`string`|✅|日志的标识符`YYYY-MM-DD-%logType%.<access|error>.log`
 `isLocal`|`string`|❌|是否为本地环境，开启 terminal 输出，默认为`false`
+`isWriteKafka`|`string`|❌|是否在将数据生产到kafka ，默认为`true`
+`isWriteFile`|`string`|❌|是否在将数据写入本地日志文件，默认为`true`
 
 ### access
 

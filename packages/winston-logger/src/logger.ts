@@ -10,9 +10,8 @@ export class Logger extends BaseLogger {
   buildLogger(logType: string) {
     if (this.cache.has(logType)) return this.cache.get(logType)
 
-    const { logPath } = this
-    if (!this.isLocal && !fs.existsSync(logPath)) {
-      mkdirp.sync(logPath)
+    if (!this.isLocal && !fs.existsSync(this.logPath)) {
+      mkdirp.sync(this.logPath)
     }
 
     const kafkaTransport = new KafkaTransport({
@@ -28,13 +27,13 @@ export class Logger extends BaseLogger {
       level: 'info',
       transports: !this.isLocal
         ? [
-          new DailyRotateFile({
-            filename: path.resolve(logPath, `./%DATE%-${logType}.access.log`),
+          this.isWriteFile ? new DailyRotateFile({
+            filename: path.resolve(this.logPath, `./%DATE%-${logType}.access.log`),
             datePattern: `YYYY-MM-DD-HH`,
             zippedArchive: true,
             level: 'info',
-          }),
-          kafkaTransport,
+          }) : null,
+          this.isWriteKafka ? kafkaTransport : null,
         ]
         : [],
     })
@@ -43,13 +42,13 @@ export class Logger extends BaseLogger {
       level: 'error',
       transports: !this.isLocal
         ? [
-          new DailyRotateFile({
-            filename: path.resolve(logPath, `./%DATE%-${logType}.error.log`),
+          this.isWriteFile ? new DailyRotateFile({
+            filename: path.resolve(this.logPath, `./%DATE%-${logType}.error.log`),
             datePattern: `YYYY-MM-DD-HH`,
             zippedArchive: true,
             level: 'error',
-          }),
-          kafkaTransport,
+          }) : null,
+          this.isWriteKafka ? kafkaTransport : null,
         ]
         : [],
     })

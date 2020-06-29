@@ -12,6 +12,8 @@ export interface LoggerOptions {
   transformer: any
   logPath: string
   isLocal?: boolean
+  isWriteKafka?: boolean
+  isWriteFile?: boolean
 }
 
 export interface LoggerIntl {
@@ -40,11 +42,18 @@ export default abstract class Logger implements LoggerIntl {
 
   public transformer: any
 
+  public isWriteKafka: boolean
+
+  public isWriteFile: boolean
+
   private colors: any
 
   constructor(public opts: LoggerOptions, public cache: Cache<Loggers>) {
     this.logPath = opts.logPath
     this.isLocal = opts.isLocal || false
+
+    this.isWriteKafka = opts.isWriteKafka || true
+    this.isWriteFile = opts.isWriteFile || true
 
     this.project = opts.project
     this.getKafkaClient = opts.getKafkaClient
