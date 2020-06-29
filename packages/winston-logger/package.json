@@ -1,6 +1,6 @@
 {
   "name": "@blued/winston-logger-with-elk",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-alpha.1",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -17,7 +17,6 @@
   "license": "ISC",
   "dependencies": {
     "@blued-core/cache-intl": "0.0.4",
-    "@blued-core/kafka-client": "^0.1.2",
     "@blued-core/logger-intl": "^0.0.12",
     "colors": "^1.3.3",
     "mkdirp": "^0.5.1",

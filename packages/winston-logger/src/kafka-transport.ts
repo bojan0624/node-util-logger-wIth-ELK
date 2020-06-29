@@ -1,6 +1,5 @@
 import Transport from 'winston-transport'
 import { hostname } from 'os'
-import { Kafka } from '@blued-core/kafka-client'
 
 interface TransformableInfo {
   level: string
@@ -11,7 +10,7 @@ interface TransformableInfo {
 interface KafkaTransportOprations extends Transport.TransportStreamOptions {
   origin: any
   topic: string
-  getKafkaClient: () => Kafka
+  getKafkaClient: () => { send: Function, [key: string]: any }
   transformer: (logData: TransformableInfo) => any
 }
 
@@ -22,7 +21,7 @@ export class KafkaTransport extends Transport {
 
   topic: string
 
-  getKafkaClient: () => Kafka
+  getKafkaClient: () => { send: Function, [key: string]: any }
 
   transformer: (logData: any) => any
 
