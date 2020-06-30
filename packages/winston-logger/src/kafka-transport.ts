@@ -12,6 +12,11 @@ interface KafkaTransportOprations extends Transport.TransportStreamOptions {
   topic: string
   getKafkaClient: () => { send: Function, [key: string]: any }
   transformer: (logData: TransformableInfo) => any
+  options?: {
+    key?: string,
+    partition?: number,
+    attributes?: 0 | 1 | 2,
+  }
 }
 
 export class KafkaTransport extends Transport {
@@ -25,6 +30,12 @@ export class KafkaTransport extends Transport {
 
   transformer: (logData: any) => any
 
+  options?: {
+    key?: string,
+    partition?: number,
+    attributes?: 0 | 1 | 2
+  }
+
   constructor(opts: KafkaTransportOprations) {
     super(opts)
     this.origin = opts.origin
@@ -32,6 +43,7 @@ export class KafkaTransport extends Transport {
     this.getKafkaClient = opts.getKafkaClient
     this.topic = opts.topic
     this.transformer = opts.transformer
+    this.options = opts.options
   }
 
   log(info: TransformableInfo, callback: () => void) {
@@ -61,7 +73,13 @@ export class KafkaTransport extends Transport {
 
     const bootstrapKafka = this.getKafkaClient()
 
-    bootstrapKafka.send(this.topic, JSON.stringify(entry))
+    const { key, attributes, partition } = this.options
+
+    bootstrapKafka.send(this.topic, JSON.stringify(entry), {
+      key,
+      attributes,
+      partition: partition > 0 ? Math.floor(Math.random() * partition) : 0,
+    })
 
     callback()
   }

@@ -1,4 +1,5 @@
 import Cache from '@blued-core/cache-intl'
+import { transformer } from './transformer'
 
 export interface Loggers {
   accessLog: (res: any) => any
@@ -9,11 +10,16 @@ export interface LoggerOptions {
   project: string
   getKafkaClient: () => any
   topic: string
-  transformer: any
   logPath: string
+  transformer?: any
   isLocal?: boolean
   isWriteKafka?: boolean
   isWriteFile?: boolean
+  kafkaOptions?: {
+    key?: string
+    partition?: number
+    attributes?: 0 | 1 | 2
+  }
 }
 
 export interface LoggerIntl {
@@ -46,19 +52,26 @@ export default abstract class Logger implements LoggerIntl {
 
   public isWriteFile: boolean
 
+  public kafkaOptions: {
+    key?: string
+    partition?: number
+    attributes?: 0 | 1 | 2
+  }
+
   private colors: any
 
   constructor(public opts: LoggerOptions, public cache: Cache<Loggers>) {
     this.logPath = opts.logPath
     this.isLocal = opts.isLocal || false
 
-    this.isWriteKafka = opts.isWriteKafka || true
-    this.isWriteFile = opts.isWriteFile || true
+    this.isWriteKafka = typeof opts.isWriteKafka === 'boolean' ? opts.isWriteKafka : true
+    this.isWriteFile = typeof opts.isWriteFile === 'boolean' ? opts.isWriteFile : true
 
     this.project = opts.project
     this.getKafkaClient = opts.getKafkaClient
     this.topic = opts.topic
-    this.transformer = opts.transformer
+    this.transformer = opts.transformer || transformer
+    this.kafkaOptions = opts.kafkaOptions
 
     if (this.isLocal) {
       this.colors = require('colors')

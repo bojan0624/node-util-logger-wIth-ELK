@@ -10,7 +10,7 @@ export class Logger extends BaseLogger {
   buildLogger(logType: string) {
     if (this.cache.has(logType)) return this.cache.get(logType)
 
-    if (!this.isLocal && !fs.existsSync(this.logPath)) {
+    if (this.isWriteFile && !this.isLocal && !fs.existsSync(this.logPath)) {
       mkdirp.sync(this.logPath)
     }
 
@@ -21,36 +21,45 @@ export class Logger extends BaseLogger {
       getKafkaClient: this.getKafkaClient,
       topic: this.topic,
       transformer: this.transformer,
+      options: this.kafkaOptions,
     })
+
+    let accessTransports: any
+    if (!this.isLocal) accessTransports = []
+    if (this.isWriteFile) {
+      accessTransports.push(new DailyRotateFile({
+        filename: path.resolve(this.logPath, `./%DATE%-${logType}.access.log`),
+        datePattern: `YYYY-MM-DD-HH`,
+        zippedArchive: true,
+        level: 'info',
+      }))
+    }
+    if (this.isWriteKafka) {
+      accessTransports.push(kafkaTransport)
+    }
 
     const accessLog = winston.createLogger({
       level: 'info',
-      transports: !this.isLocal
-        ? [
-          this.isWriteFile ? new DailyRotateFile({
-            filename: path.resolve(this.logPath, `./%DATE%-${logType}.access.log`),
-            datePattern: `YYYY-MM-DD-HH`,
-            zippedArchive: true,
-            level: 'info',
-          }) : null,
-          this.isWriteKafka ? kafkaTransport : null,
-        ]
-        : [],
+      transports: accessTransports,
     })
+
+    let errorTransports: any
+    if (!this.isLocal) errorTransports = []
+    if (this.isWriteFile) {
+      errorTransports.push(new DailyRotateFile({
+        filename: path.resolve(this.logPath, `./%DATE%-${logType}.error.log`),
+        datePattern: `YYYY-MM-DD-HH`,
+        zippedArchive: true,
+        level: 'error',
+      }))
+    }
+    if (this.isWriteKafka) {
+      errorTransports.push(kafkaTransport)
+    }
 
     const errorLog = winston.createLogger({
       level: 'error',
-      transports: !this.isLocal
-        ? [
-          this.isWriteFile ? new DailyRotateFile({
-            filename: path.resolve(this.logPath, `./%DATE%-${logType}.error.log`),
-            datePattern: `YYYY-MM-DD-HH`,
-            zippedArchive: true,
-            level: 'error',
-          }) : null,
-          this.isWriteKafka ? kafkaTransport : null,
-        ]
-        : [],
+      transports: errorTransports,
     })
 
     this.cache.set(logType, {
