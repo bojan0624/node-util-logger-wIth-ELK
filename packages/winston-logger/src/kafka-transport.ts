@@ -60,8 +60,6 @@ export class KafkaTransport extends Transport {
       },
     }
 
-    setImmediate(() => this.emit('logged', info))
-
     const logData = {
       message,
       level,
@@ -71,16 +69,17 @@ export class KafkaTransport extends Transport {
 
     const entry = this.transformer(logData)
 
-    const bootstrapKafka = this.getKafkaClient()
+    Promise.resolve(this.getKafkaClient())
+      .then(bootstrapKafka => {
+        const { key, attributes, partition } = this.options
 
-    const { key, attributes, partition } = this.options
-
-    bootstrapKafka.send(this.topic, JSON.stringify(entry), {
-      key,
-      attributes,
-      partition: partition > 0 ? Math.floor(Math.random() * partition) : 0,
-    })
-
-    callback()
+        bootstrapKafka.send(this.topic, JSON.stringify(entry), {
+          key,
+          attributes,
+          partition: partition > 0 ? Math.floor(Math.random() * partition) : 0,
+        })
+      })
+      .then(() => callback())
+      .then(() => this.emit('logged', info))
   }
 }
