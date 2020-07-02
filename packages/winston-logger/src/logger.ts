@@ -26,7 +26,7 @@ export class Logger extends BaseLogger {
 
     let accessTransports: any
     if (!this.isLocal) accessTransports = []
-    if (this.isWriteFile) {
+    if (this.isWriteFile && accessTransports) {
       accessTransports.push(new DailyRotateFile({
         filename: path.resolve(this.logPath, `./%DATE%-${logType}.access.log`),
         datePattern: `YYYY-MM-DD-HH`,
@@ -34,7 +34,7 @@ export class Logger extends BaseLogger {
         level: 'info',
       }))
     }
-    if (this.isWriteKafka) {
+    if (this.isWriteKafka && accessTransports) {
       accessTransports.push(kafkaTransport)
     }
 
@@ -45,7 +45,7 @@ export class Logger extends BaseLogger {
 
     let errorTransports: any
     if (!this.isLocal) errorTransports = []
-    if (this.isWriteFile) {
+    if (this.isWriteFile && errorTransports) {
       errorTransports.push(new DailyRotateFile({
         filename: path.resolve(this.logPath, `./%DATE%-${logType}.error.log`),
         datePattern: `YYYY-MM-DD-HH`,
@@ -53,7 +53,7 @@ export class Logger extends BaseLogger {
         level: 'error',
       }))
     }
-    if (this.isWriteKafka) {
+    if (this.isWriteKafka && errorTransports) {
       errorTransports.push(kafkaTransport)
     }
 
